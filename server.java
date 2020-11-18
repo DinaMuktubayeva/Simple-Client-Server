@@ -1,24 +1,35 @@
-import java.net.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
 
-public class server{
+public class server {
+    private static final int PORT = 9090;
+
     public static void main(String[] args) throws IOException {
-        int port = 3000;
-        ServerSocket serverSocket = new ServerSocket(port);
+
+        ServerSocket serverSocket = new ServerSocket(PORT);
+        System.out.println("[Server] Waiting for client connection ...");
         Socket socket = serverSocket.accept();
+        System.out.println("[Server] Connected to client");
 
-        System.out.println("Client connected");
-
+        // Receiving messages from the client
         InputStreamReader in = new InputStreamReader(socket.getInputStream());
-        BufferedReader bf = new BufferedReader(in);
+        BufferedReader receiver = new BufferedReader(in);
 
-        String clientMsg = bf.readLine();
-        System.out.println("Client: "+ clientMsg);
+        String clientMsg = receiver.readLine();
+        System.out.println("[Client] : " + clientMsg);
 
-        PrintWriter pr = new PrintWriter(socket.getOutputStream());
-        pr.println("yes, it is");
-        pr.flush();
+        // Sending messages to the client
+        PrintWriter sender = new PrintWriter(socket.getOutputStream());
+        sender.println("yes, it is");
+        sender.flush();
 
+        // Socket must be closed at the end of the session
+        System.out.println("[Server] Closing");
+        socket.close();
         serverSocket.close();
     }
 }
