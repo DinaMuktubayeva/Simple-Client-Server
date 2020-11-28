@@ -3,29 +3,38 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class client {
     private static final int PORT = 9090;
 
     public static void main(String[] args) throws IOException {
 
-        Socket socket = new Socket("localhost", PORT);
-        System.out.println("[Client] : Connected to server");
+        try(var socket = new Socket(args[0], PORT)){
+            System.out.println("[Client] Connected to server");
+            System.out.println("[Client] Enter text (type \"quit\" to exit)");
 
-        // Sending messages to the server
-        PrintWriter sender = new PrintWriter(socket.getOutputStream());
-        sender.println("is it working?");
-        sender.flush();
+            // User input
+            BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
+            // Server response
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-        // Receiving messages from the server
-        InputStreamReader in = new InputStreamReader(socket.getInputStream());
-        BufferedReader receiver = new BufferedReader(in);
+            // Messages for the server            
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
-        String serverMsg = receiver.readLine();
-        System.out.println("[Server] : " + serverMsg);
+            while(true){
+                System.out.print("[Client] > ");
+                // Reading user input
+                String command = keyboard.readLine();
 
-        // Socket must be closed at the end of the session
-        System.out.println("[Client] Closing" + serverMsg);
-        socket.close();
+                if(command.equals("quit"))
+                    break;
+
+                out.println(command);
+
+                String response = in.readLine();
+                System.out.println("[Server] > " + response);
+            }
+        }
     }
 }
