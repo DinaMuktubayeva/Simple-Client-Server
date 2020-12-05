@@ -4,7 +4,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Scanner;
 import java.util.concurrent.Executors;
 
 public class server {
@@ -24,7 +23,7 @@ public class server {
         }
     }
 
-    public static class ClientHandler implements Runnable {
+    private static class ClientHandler implements Runnable {
         private Socket socket;
         private BufferedReader in;
         private PrintWriter out;
@@ -39,18 +38,18 @@ public class server {
         public void run() {
             System.out.println("[Server] Connected to client");
 
-            try{
-                while(true){
+            try {
+                while (true) {
                     // The server echoes the client's messages
                     String msg = in.readLine();
                     out.println(msg);
-                }  
-            } catch(Exception e){
+                }
+            } catch (Exception e) {
                 System.out.println("[Server] Error: " + socket);
-            }finally{
+            } finally {
                 try {
                     // Socket must be closed at the end of the session
-                    System.out.println("[Server] Closing "+socket);
+                    System.out.println("[Server] Closing " + socket);
                     socket.close();
                     in.close();
                     out.close();
@@ -59,9 +58,9 @@ public class server {
                     System.err.println(e.getStackTrace());
                 }
 
-                System.out.println("[Server] Sucsessfully closed "+socket);                
+                System.out.println("[Server] Sucsessfully closed " + socket);
             }
-            
+
         }
     }
 }

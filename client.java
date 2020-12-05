@@ -3,38 +3,37 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Scanner;
 
-public class client {
+/**
+ * Takes user input and sends it to the server
+ */
+public class Client {
     private static final int PORT = 9090;
 
     public static void main(String[] args) throws IOException {
+        Socket socket = new Socket("localhost", PORT);
+        ServerConnection serverConn = new ServerConnection(socket);
 
-        try(var socket = new Socket(args[0], PORT)){
-            System.out.println("[Client] Connected to server");
-            System.out.println("[Client] Enter text (type \"quit\" to exit)");
+        // User input
+        BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
 
-            // User input
-            BufferedReader keyboard = new BufferedReader(new InputStreamReader(System.in));
-            // Server response
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        // Output to the server
+        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
-            // Messages for the server            
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+        new Thread(serverConn).start();
 
-            while(true){
-                System.out.print("[Client] > ");
-                // Reading user input
-                String command = keyboard.readLine();
+        while (true) {
+            System.out.print("> ");
 
-                if(command.equals("quit"))
-                    break;
+            // Reading user input
+            String command = keyboard.readLine();
+            out.println(command);
 
-                out.println(command);
-
-                String response = in.readLine();
-                System.out.println("[Server] > " + response);
-            }
+            if (command.equals("quit"))
+                break;            
         }
+        
+        keyboard.close();
+        out.close();
     }
 }
